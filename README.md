@@ -6,12 +6,12 @@
 
 Raw URL:
 ```
-https://raw.githubusercontent.com/JunKwon91/lotto-data/main/data/lotto-history.json
+https://raw.githubusercontent.com/jeong760/lotto-data/main/data/lotto-history.json
 ```
 
 ```javascript
 const response = await fetch(
-  'https://raw.githubusercontent.com/JunKwon91/lotto-data/main/data/lotto-history.json'
+  'https://raw.githubusercontent.com/jeong760/lotto-data/main/data/lotto-history.json'
 );
 const { data, latestRound, updatedAt } = await response.json();
 ```
