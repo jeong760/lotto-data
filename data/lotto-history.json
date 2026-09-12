@@ -1,6 +1,6 @@
 {
-  "updatedAt": "2026-08-29T17:02:23.274Z",
-  "latestRound": 1239,
+  "updatedAt": "2026-09-12T16:06:38.105Z",
+  "latestRound": 1241,
   "data": [
     {
       "drawNo": 1,
@@ -58222,6 +58222,102 @@
         "auto": 10,
         "manual": 2,
         "semiAuto": 1
+      }
+    },
+    {
+      "drawNo": 1240,
+      "date": "2026-09-05",
+      "numbers": [
+        11,
+        13,
+        19,
+        20,
+        31,
+        44
+      ],
+      "bonusNo": 27,
+      "prizes": [
+        {
+          "rank": 1,
+          "winners": 16,
+          "prizePerWinner": 1791817758
+        },
+        {
+          "rank": 2,
+          "winners": 78,
+          "prizePerWinner": 61258727
+        },
+        {
+          "rank": 3,
+          "winners": 3087,
+          "prizePerWinner": 1547840
+        },
+        {
+          "rank": 4,
+          "winners": 155202,
+          "prizePerWinner": 50000
+        },
+        {
+          "rank": 5,
+          "winners": 2619423,
+          "prizePerWinner": 5000
+        }
+      ],
+      "totalWinners": 2777806,
+      "totalPrize": 59082661914,
+      "totalSales": 118165321000,
+      "firstWinMethod": {
+        "auto": 14,
+        "manual": 2,
+        "semiAuto": 0
+      }
+    },
+    {
+      "drawNo": 1241,
+      "date": "2026-09-12",
+      "numbers": [
+        7,
+        13,
+        16,
+        23,
+        24,
+        43
+      ],
+      "bonusNo": 9,
+      "prizes": [
+        {
+          "rank": 1,
+          "winners": 18,
+          "prizePerWinner": 1628391980
+        },
+        {
+          "rank": 2,
+          "winners": 90,
+          "prizePerWinner": 54279733
+        },
+        {
+          "rank": 3,
+          "winners": 3254,
+          "prizePerWinner": 1501284
+        },
+        {
+          "rank": 4,
+          "winners": 165086,
+          "prizePerWinner": 50000
+        },
+        {
+          "rank": 5,
+          "winners": 2724667,
+          "prizePerWinner": 5000
+        }
+      ],
+      "totalWinners": 2893115,
+      "totalPrize": 60959044746,
+      "totalSales": 121918085000,
+      "firstWinMethod": {
+        "auto": 13,
+        "manual": 5,
+        "semiAuto": 0
       }
     }
   ]
