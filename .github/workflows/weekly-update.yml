@@ -34,15 +34,14 @@ jobs:
         run: |
           node -e "
           (async () => {
-            const { crawlDhLottery, closeBrowser } = require('./scripts/crawl-dhlottery.js');
             try {
+              const { crawlDhLottery, closeBrowser } = await import('./scripts/crawl-dhlottery.js');
               const r = await crawlDhLottery(1227);
               console.log('SUCCESS', r.numbers.join(','), '+', r.bonusNo, '(', r.date, ')');
+              if (typeof closeBrowser === 'function') await closeBrowser();
             } catch (e) {
               console.error('FAILED:', e.message);
               process.exit(1);
-            } finally {
-              await closeBrowser();
             }
           })();
           "
@@ -65,14 +64,18 @@ jobs:
 
       - name: Create issue on failure
         if: failure() || cancelled()
-        uses: actions/github-script@v7   # Updated to v7 (v9 does not exist)
+        uses: actions/github-script@v7
         with:
           script: |
             const date = new Date().toISOString().split('T')[0];
             const runUrl = `${context.payload.repository.html_url}/actions/runs/${context.runId}`;
-            github.rest.issues.create({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              title: `⚠️ Weekly Auto-Update Failed (${date})`,
-              body: `## Automatic Crawling Failed\n\nPlease check the failed workflow logs.\n\n- **Failure Date**: ${date}\n- **Log URL**: ${runUrl}\n\n## Potential Causes\n\n1. HTML structure changes on the DHLottery website (broken selectors)\n2. Temporary outage of the DHLottery website\n3. Network issues\n4. Gap is too large (10+ weeks)\n5. Script hanging / timeout due to unclosed browser processes (DECISIONS.md ADR-10)\n\n## Action Items\n\n1. Review the workflow logs to identify the exact error message\n2. Inspect the website HTML structure directly\n3. Update selectors in \`scripts/crawl-dhlottery.js\` if necessary\n4. Re-run the update script manually via the \`workflow_dispatch\` trigger`
-            });
+            try {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: `⚠️ Weekly Auto-Update Failed (${date})`,
+                body: `## Automatic Crawling Failed\n\nPlease check the failed workflow logs.\n\n- **Failure Date**: ${date}\n- **Log URL**: ${runUrl}\n\n## Potential Causes\n\n1. HTML structure changes on the DHLottery website (broken selectors)\n2. Temporary outage of the DHLottery website\n3. Network issues\n4. Gap is too large (10+ weeks)\n5. Script hanging / timeout due to unclosed browser processes (DECISIONS.md ADR-10)\n\n## Action Items\n\n1. Review the workflow logs to identify the exact error message\n2. Inspect the website HTML structure directly\n3. Update selectors in \`scripts/crawl-dhlottery.js\` if necessary\n4. Re-run the update script manually via the \`workflow_dispatch\` trigger`
+              });
+            } catch (err) {
+              console.log('Note: Could not create GitHub issue (Issues may be disabled in this repository):', err.message);
+            }
