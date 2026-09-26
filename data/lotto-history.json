@@ -58367,6 +58367,54 @@
         "manual": 1,
         "semiAuto": 0
       }
+    },
+    {
+      "drawNo": 1243,
+      "date": "2026-09-26",
+      "numbers": [
+        9,
+        18,
+        24,
+        38,
+        43,
+        44
+      ],
+      "bonusNo": 35,
+      "prizes": [
+        {
+          "rank": 1,
+          "winners": 12,
+          "prizePerWinner": 2592525282
+        },
+        {
+          "rank": 2,
+          "winners": 115,
+          "prizePerWinner": 45087397
+        },
+        {
+          "rank": 3,
+          "winners": 3591,
+          "prizePerWinner": 1443902
+        },
+        {
+          "rank": 4,
+          "winners": 174306,
+          "prizePerWinner": 50000
+        },
+        {
+          "rank": 5,
+          "winners": 2853501,
+          "prizePerWinner": 5000
+        }
+      ],
+      "totalWinners": 3041525,
+      "totalPrize": 64463211121,
+      "totalSales": 128926419000,
+      "firstWinMethod": {
+        "auto": 10,
+        "manual": 2,
+        "semiAuto": 0
+      }
     }
   ]
 }
