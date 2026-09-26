@@ -130,7 +130,16 @@ async function crawlDhLottery(round) {
   try {
     const page = await _getPage();
     payload = await page.evaluate(async u => {
-      const r = await fetch(u, { credentials: 'include' });
+      // Added headers to bypass bot detection and prevent "Failed to fetch"
+      const r = await fetch(u, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json, text/javascript, */*; q=0.01',
+          'X-Requested-With': 'XMLHttpRequest',
+          'Referer': 'https://dhlottery.co.kr/gameResult.do?method=byWin',
+        },
+        credentials: 'include',
+      });
       if (!r.ok) {
         throw new Error(`HTTP ${r.status}`);
       }
