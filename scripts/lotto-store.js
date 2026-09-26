@@ -1,10 +1,11 @@
 // ============================================================================
-// lotto-history.json 병합·저장 (update.js / 백필 공용)
+// lotto-history.json Merge & Save (Common path for update.js / backfill)
 // ============================================================================
 //
-// 회차 객체를 기존 데이터셋에 병합(중복 제거)·정렬하고 메타데이터를 갱신해
-// 저장한다. 주간 갱신(update.js)과 대량 백필이 이 단일 경로를 재사용해
-// 저장 규칙(dedup·정렬·메타 형식)이 드리프트하지 않도록 한다.
+// Merges round objects into the existing dataset (with deduplication),
+// sorts them, and updates metadata before saving. Both the weekly update (update.js)
+// and bulk backfills reuse this single path to prevent storage rule drift
+// (deduplication, sorting, metadata formatting).
 // ============================================================================
 
 const fs = require('fs');
@@ -16,12 +17,12 @@ function loadHistory() {
   return JSON.parse(fs.readFileSync(DATA_PATH, 'utf-8'));
 }
 
-// 순수 병합: newRounds를 existing.data에 중복 없이 넣고 drawNo 오름차순 정렬.
-// 파일 쓰기·메타 갱신은 하지 않는다(테스트·조합 용이).
+// Pure merge: Inserts newRounds into existing.data without duplicates, sorted by drawNo ascending.
+// Does not perform file writing or metadata updates (useful for testing and combination).
 function mergeRounds(existing, newRounds) {
   for (const r of newRounds) {
     if (existing.data.find(d => d.drawNo === r.drawNo)) {
-      console.warn(`  ⚠️ ${r.drawNo}회차 이미 존재, 스킵`);
+      console.warn(`  ⚠️ Round ${r.drawNo} already exists, skipping`);
       continue;
     }
     existing.data.push(r);
@@ -30,7 +31,7 @@ function mergeRounds(existing, newRounds) {
   return existing;
 }
 
-// 병합 + 메타 갱신 + 파일 저장. latestRound 미지정 시 data 마지막 drawNo 사용.
+// Merge + Update metadata + Save file. Uses the last drawNo in data if latestRound is not specified.
 function mergeAndSave(existing, newRounds, latestRound) {
   mergeRounds(existing, newRounds);
   existing.latestRound =
