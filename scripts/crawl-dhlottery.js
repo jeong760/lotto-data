@@ -2,8 +2,6 @@
 // Donghang Lottery Round Results Inquiry (lt645 new SPA API, via Playwright integrated)
 // ============================================================================
 const { chromium } = require('playwright');
-const fs = require('fs');
-const path = require('path');
 
 const HOST_URL = 'https://dhlottery.co.kr';
 const API_BASE = 'https://dhlottery.co.kr';
@@ -192,80 +190,11 @@ async function crawlDhLottery(round) {
   };
 }
 
-// ============================================================================
-// Main Execution Control System (File accumulation & synchronization implementation)
-// ============================================================================
-async function main() {
-  const dataDir = path.join(__dirname, '../data');
-  const dataPath = path.join(dataDir, 'lotto-history.json');
-  
-  // Automatically create data directory if it does not exist
-  if (!fs.existsSync(dataDir)) {
-    fs.mkdirSync(dataDir, { recursive: true });
-  }
-
-  let lottoHistory = [];
-
-  // Load existing file
-  if (fs.existsSync(dataPath)) {
-    try {
-      const fileContent = fs.readFileSync(dataPath, 'utf-8');
-      lottoHistory = JSON.parse(fileContent);
-      console.log(`📂 Existing lotto data loaded successfully (${lottoHistory.length} rounds preserved)`);
-    } catch (e) {
-      console.error("⚠️ Failed to parse existing data. Starting fresh.");
-      lottoHistory = [];
-    }
-  }
-
-  // Check the last collected round and set the starting point
-  const lastDownloadedRound = lottoHistory.length > 0 ? lottoHistory[lottoHistory.length - 1].round : 0;
-  const startRound = lastDownloadedRound + 1;
-  const targetEndRound = 1241; // Target latest round scope defined by user
-
-  if (startRound > targetEndRound) {
-    console.log(`✅ All data up to the latest round (${targetEndRound}) is already up to date.`);
-    await closeBrowser();
-    return;
-  }
-
-  console.log(`🔄 Crawling synchronization started: Round ${startRound} ➔ Round ${targetEndRound}`);
-
-  for (let round = startRound; round <= targetEndRound; round++) {
-    try {
-      const data = await crawlDhLottery(round);
-      lottoHistory.push(data);
-      console.log(`[Success] Round ${round} data updated`);
-      
-      // Timeout delay (0.8s) to prevent overload and bot detection during consecutive requests
-      await new Promise(resolve => setTimeout(resolve, 800));
-    } catch (error) {
-      console.error(`\n❌ Fatal error while collecting round ${round}: ${error.message}`);
-      break;
-    }
-  }
-
-  // Save the fully collected data to file
-  try {
-    fs.writeFileSync(dataPath, JSON.stringify(lottoHistory, null, 2), 'utf-8');
-    console.log(`\n🎉 All data completely saved to "${dataPath}". (Total ${lottoHistory.length} rounds preserved)`);
-  } catch (fsErr) {
-    console.error(`❌ Error occurred while saving file: ${fsErr.message}`);
-  }
-
-  await closeBrowser();
-}
-
 process.on('beforeExit', async () => {
   await closeBrowser();
 });
 
-// Run main() only when executed directly via terminal or node
-if (require.main === module) {
-  main();
-}
-
-// 📌 Export settings so functions can be required in workflow diagnostics, etc.
+// Export functions for update.js and workflow diagnostics
 module.exports = {
   crawlDhLottery,
   closeBrowser,
