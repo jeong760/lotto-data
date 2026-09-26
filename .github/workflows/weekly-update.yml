@@ -16,10 +16,10 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v6   # Node.js 24 native
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v4
         with:
           node-version: '22'   # 현 LTS
 
@@ -56,8 +56,8 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           
-          # 원격 저장소의 최신 변경 사항을 먼저 반영하여 충돌 및 push 거부 방지
-          git pull --rebase origin main
+          # 원격 저장소 최신 변경 사항 동기화 (conflict 및 push 거부 방지)
+          git pull origin main --rebase
           
           git add data/
           if git diff --staged --quiet; then
@@ -69,7 +69,7 @@ jobs:
 
       - name: Create issue on failure
         if: failure() || cancelled()
-        uses: actions/github-script@v9
+        uses: actions/github-script@v7
         with:
           script: |
             const date = new Date().toISOString().split('T')[0];
