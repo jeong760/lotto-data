@@ -16,10 +16,10 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v6   # Node.js 24 native
+        uses: actions/checkout@v4   # 안정적인 v4 사용
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v4
         with:
           node-version: '22'   # 현 LTS
 
@@ -65,7 +65,7 @@ jobs:
 
       - name: Create issue on failure
         if: failure() || cancelled()
-        uses: actions/github-script@v9
+        uses: actions/github-script@v7   # 안정적인 v7 사용
         with:
           script: |
             const date = new Date().toISOString().split('T')[0];
