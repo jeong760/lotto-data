@@ -16,12 +16,12 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v7   # Node.js 24 대응 최신 버전
+        uses: actions/checkout@v6   # Node.js 24 native
 
       - name: Setup Node.js
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@v6
         with:
-          node-version: '22'   # LTS 버전
+          node-version: '22'   # 현 LTS
 
       - name: Install dependencies
         run: npm ci
@@ -65,7 +65,7 @@ jobs:
 
       - name: Create issue on failure
         if: failure() || cancelled()
-        uses: actions/github-script@v9   # Node.js 24 대응 최신 버전
+        uses: actions/github-script@v9
         with:
           script: |
             const date = new Date().toISOString().split('T')[0];
