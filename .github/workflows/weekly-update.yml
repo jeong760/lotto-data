@@ -15,19 +15,16 @@ jobs:
       issues: write     # 실패 시 issue 생성 권한
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - name: Git Clone Repository (No actions/checkout)
+        run: |
+          git clone https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git .
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'   # 현 LTS
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Install Google Chrome
-        run: npx playwright install --with-deps chrome
+      - name: Install dependencies & Playwright Chrome
+        run: |
+          npm ci
+          npx playwright install --with-deps chrome
 
       - name: Diagnose dhlottery access (manual only)
         if: github.event_name == 'workflow_dispatch'
@@ -53,10 +50,7 @@ jobs:
 
       - name: Commit and push if changed
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          
-          # 원격 저장소 최신 변경 사항 동기화 (conflict 및 push 거부 방지)
+          # 원격 저장소 최신 변경 사항 동기화
           git pull origin main --rebase
           
           git add data/
@@ -67,16 +61,39 @@ jobs:
           git commit -m "chore: 주간 로또 데이터 자동 갱신 ($(date +%Y-%m-%d))"
           git push
 
-      - name: Create issue on failure
+      - name: Create issue on failure (No actions/github-script)
         if: failure() || cancelled()
-        uses: actions/github-script@v7
-        with:
-          script: |
+        run: |
+          node -e "
+          (async () => {
+            const https = require('https');
             const date = new Date().toISOString().split('T')[0];
-            const runUrl = `${context.payload.repository.html_url}/actions/runs/${context.runId}`;
-            github.rest.issues.create({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              title: `⚠️ 주간 자동 갱신 실패 (${date})`,
-              body: `## 자동 크롤링 실패\n\n실패한 워크플로우 로그를 확인해주세요.\n\n- **실패 일시**: ${date}\n- **로그 URL**: ${runUrl}\n\n## 가능한 원인\n\n1. 동행복권 사이트 HTML 구조 변경 (셀렉터 깨짐)\n2. 동행복권 사이트 일시적 다운\n3. 네트워크 문제\n4. 갭이 너무 큼 (10주 이상)\n5. 스크립트가 매달려 타임아웃 (수집 후 프로세스 미종료 계열 — DECISIONS.md ADR-10)\n\n## 대응\n\n1. 로그 확인하여 정확한 에러 메시지 파악\n2. 사이트 직접 방문하여 HTML 구조 확인\n3. 필요시 \`scripts/crawl-dhlottery.js\` 셀렉터 수정\n4. 수동으로 update 스크립트 재실행: \`workflow_dispatch\` 트리거`
+            const runUrl = 'https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}';
+            
+            const data = JSON.stringify({
+              title: '⚠️ 주간 자동 갱신 실패 (' + date + ')',
+              body: '## 자동 크롤링 실패\n\n실패한 워크플로우 로그를 확인해주세요.\n\n- **실패 일시**: ' + date + '\n- **로그 URL**: ' + runUrl
             });
+
+            const options = {
+              hostname: 'api.github.com',
+              path: '/repos/${{ github.repository }}/issues',
+              method: 'POST',
+              headers: {
+                'Authorization': 'token ${{ secrets.GITHUB_TOKEN }}',
+                'User-Agent': 'Node.js-Script',
+                'Content-Type': 'application/json',
+                'Content-Length': Buffer.byteLength(data)
+              }
+            };
+
+            const req = https.request(options, (res) => {
+              console.log('Issue creation status:', res.statusCode);
+            });
+            req.on('error', (e) => {
+              console.error('Failed to create issue:', e);
+            });
+            req.write(data);
+            req.end();
+          })();
+          "
